@@ -57,9 +57,36 @@ async def c_max_lum(interaction : discord.Interaction, max: int) :
     send_command(f"C_LUM,{max}")
     await interaction.response.send_message(f"la luminosiée max est changer a {max}")
 
-@bot.tree.command(name="set_color", description="change la couleur des led")
-async def set_color(interaction : discord.Interaction, color: str) :
-    send_command(f"C_LUM,{color}")
-    await interaction.response.send_message(f"la couleur est changer en {color}")
+
+@bot.tree.command(name="set_color", description="Change la couleur des LED")
+async def set_color(interaction: discord.Interaction):
+    reactions = {
+        "🔴": "255,0,0",
+        "🟢": "0,255,0",
+        "🔵": "0,0,255",
+        "⚪": "255,255,255",
+        "🇫🇷": "patriot",
+    }
+
+    await interaction.response.send_message("Choisissez une couleur :", ephemeral=False)
+    message = await interaction.original_response()
+
+    for reaction in reactions.keys():
+        await message.add_reaction(reaction)
+
+    def check(reaction, user):
+        return user != bot.user and reaction.message.id == message.id and str(reaction.emoji) in reactions
+
+    reaction, user = await bot.wait_for("reaction_add", check=check)
+
+    color_value = reactions[str(reaction.emoji)]
+    print(color_value)
+    if(color_value == "patriot") :
+        send_command("PATRIOT")
+    else :
+        send_command(f"SET_COLOR,{color_value}")
+
+    await interaction.followup.send(f"Couleur changée en {reaction} !")
+
 
 bot.run(os.getenv('DISCORD'))
