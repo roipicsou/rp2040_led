@@ -58,7 +58,7 @@ async def c_max_lum(interaction : discord.Interaction, max: int) :
     await interaction.response.send_message(f"la luminosiée max est changer a {max}")
 
 @bot.tree.command(name="set_color", description="change la couleur des led")
-async def set_color(interaction : discord.Interaction, color: int) :
+async def set_color(interaction : discord.Interaction, color: str) :
     send_command(f"C_LUM,{color}")
     await interaction.response.send_message(f"la couleur est changer en {color}")
 
