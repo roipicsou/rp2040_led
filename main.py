@@ -90,3 +90,4 @@ async def set_color(interaction: discord.Interaction):
 
 
 bot.run(os.getenv('DISCORD'))
+#lol
