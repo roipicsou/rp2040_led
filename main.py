@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import os
 
 # Remplacez par le port série de votre carte (ex: "COM3" sous Windows, "/dev/ttyUSB0" sous Linux/macOS)
-PORT = "COM5"
+PORT = "COM5" # "/dev/ttyACM0"
 BAUDRATE = 9600
 load_dotenv()
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
@@ -47,9 +47,19 @@ async def led_off(interaction : discord.Interaction) :
     send_command("OFF")
     await interaction.response.send_message("led off")
 
-@bot.tree.command(name="c", description="changer l'intensitéer des led")
+@bot.tree.command(name="c_lum", description="changer l'intensitéer des led")
 async def c_lum(interaction : discord.Interaction, lm: int) :
     send_command(f"C_LUM,{lm}")
     await interaction.response.send_message(f"la luminosiée est changer a {lm}")
+
+@bot.tree.command(name="c_max_lum", description="changer l'intensitéer max des led")
+async def c_max_lum(interaction : discord.Interaction, max: int) :
+    send_command(f"C_LUM,{max}")
+    await interaction.response.send_message(f"la luminosiée max est changer a {max}")
+
+@bot.tree.command(name="set_color", description="change la couleur des led")
+async def set_color(interaction : discord.Interaction, color: int) :
+    send_command(f"C_LUM,{color}")
+    await interaction.response.send_message(f"la couleur est changer en {color}")
 
 bot.run(os.getenv('DISCORD'))
