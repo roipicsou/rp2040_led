@@ -6,6 +6,7 @@ import datetime
 import psutil
 from dotenv import load_dotenv
 import os
+import ast
 
 # Remplacez par le port série de votre carte (ex: "COM3" sous Windows, "/dev/ttyUSB0" sous Linux/macOS)
 PORT = "COM5" # "/dev/ttyACM0"
@@ -79,7 +80,7 @@ async def set_color(interaction: discord.Interaction):
     send_command("PATRIOT" if color_value == "patriot" else f"SET_COLOR,{color_value}")
     await interaction.followup.send(f"Couleur changée en {reaction} !")
 
-@tasks.loop(time=datetime.time(hour=17, minute=0, second=0))
+@tasks.loop(time=datetime.time(hour=18, minute=0, second=0))
 async def send_daily_message():
     channel = bot.get_channel(CHANNEL_ID)
     if channel:
@@ -89,10 +90,13 @@ async def send_daily_message():
         print("Erreur : Impossible de trouver le salon.")
 
 def get_system_info():
+    temp = psutil.sensors_temperatures()
+    temp = temp.replace("shwtemp", "")
     try:
-        temp = psutil.sensors_temperatures().get('cpu_thermal', [{}])[0].get('current', "N/A")
-    except (KeyError, AttributeError, IndexError):
-        temp = "N/A"
+        data = ast.literal_eval(temp)
+        valeur_current = data['cpu_thermal'][0]['current']
+    except Exception as e:
+        print(f"Erreur : {e}")
     
     ram = psutil.virtual_memory()
     ram_usage = f"{ram.used / (1024 ** 2):.2f} MB / {ram.total / (1024 ** 2):.2f} MB ({ram.percent}%)"
@@ -103,7 +107,7 @@ def get_system_info():
     uptime = os.popen("uptime -p").read().strip()
     
     return f"""📊 **Statistiques du Smart Pi One**
-🔹 Température CPU : {temp}°C
+🔹 Température CPU : {valeur_current}°C
 🔹 RAM utilisée : {ram_usage}
 🔹 Stockage utilisé : {storage_usage}
 🔹 Uptime : {uptime}"""
