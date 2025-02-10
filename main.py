@@ -39,6 +39,8 @@ async def on_ready():
         print(f"Comande sincroniée : {len(synced)}")
     except Exception as e :
         print(e)
+    if not send_daily_message.is_running():
+        send_daily_message.start()
 
 @bot.tree.command(name="led_on", description="alumme les led")
 async def led_on(interaction : discord.Interaction) :
