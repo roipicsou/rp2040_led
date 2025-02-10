@@ -93,26 +93,32 @@ def get_system_info():
     # Récupération de la température CPU
     temp_data = psutil.sensors_temperatures()
     try:
-        valeur_current = temp_data.get("cpu_thermal", [{}])[0].get("current", "N/A")
+        if "cpu_thermal" in temp_data and temp_data["cpu_thermal"]:
+            valeur_current = temp_data["cpu_thermal"][0].current
+            temperature = round(valeur_current, 2)
+        else:
+            temperature = "N/A"
     except Exception as e:
         print(f"Erreur lors de la récupération de la température : {e}")
-        valeur_current = "N/A"
+        temperature = "N/A"
 
     # Récupération de l'utilisation de la RAM
     ram = psutil.virtual_memory()
     ram_usage = f"{ram.used / (1024 ** 2):.2f} MB / {ram.total / (1024 ** 2):.2f} MB ({ram.percent}%)"
-    
+
     # Récupération de l'utilisation du stockage
-    disk = psutil.disk_usage('/')
+    disk = psutil.disk_usage("/")
     storage_usage = f"{disk.used / (1024 ** 3):.2f} GB / {disk.total / (1024 ** 3):.2f} GB ({disk.percent}%)"
-    
+
     # Récupération du temps de fonctionnement (uptime)
     uptime = os.popen("uptime -p").read().strip()
-    
-    return f"""📊 **Statistiques du Smart Pi One**
-🔹 Température CPU : {valeur_current}°C
-🔹 RAM utilisée : {ram_usage}
-🔹 Stockage utilisé : {storage_usage}
-🔹 Uptime : {uptime}"""
+
+    return f"""
+📊 **Statistiques du Smart Pi One** 📊
+- 🌡 Température CPU : {temperature}°C
+- 💾 RAM utilisée : {ram_usage}
+- 🗄 Stockage utilisé : {storage_usage}
+- ⏳ Uptime : {uptime}
+"""
 
 bot.run(os.getenv('DISCORD'))
