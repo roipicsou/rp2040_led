@@ -1,13 +1,16 @@
 import serial
 import time
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
+import datetime
+import psutil
 from dotenv import load_dotenv
 import os
 
 # Remplacez par le port série de votre carte (ex: "COM3" sous Windows, "/dev/ttyUSB0" sous Linux/macOS)
 PORT = "COM5" # "/dev/ttyACM0"
 BAUDRATE = 9600
+CHANNEL_ID = 1338257927047217202
 load_dotenv()
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
@@ -88,6 +91,33 @@ async def set_color(interaction: discord.Interaction):
 
     await interaction.followup.send(f"Couleur changée en {reaction} !")
 
+def get_system_info():
+    try:
+        temp = psutil.sensors_temperatures()['cpu_thermal'][0].current
+    except (KeyError, AttributeError):
+        temp = "N/A"
+
+    ram = psutil.virtual_memory()
+    ram_usage = f"{ram.used / (1024 ** 2):.2f} MB / {ram.total / (1024 ** 2):.2f} MB ({ram.percent}%)"
+
+    disk = psutil.disk_usage('/')
+    storage_usage = f"{disk.used / (1024 ** 3):.2f} GB / {disk.total / (1024 ** 3):.2f} GB ({disk.percent}%)"
+
+    uptime_seconds = int(psutil.boot_time())
+    uptime = os.popen("uptime -p").read().strip()
+
+    return f"""📊 **Statistiques du Smart Pi One**
+🔹 Température CPU : {temp}°C
+🔹 RAM utilisée : {ram_usage}
+🔹 Stockage utilisé : {storage_usage}
+🔹 Uptime : {uptime}"""
+
+@tasks.loop(time=datetime.time(hour=19, minute=0, second=0))
+async def send_daily_message():
+    channel = bot.get_channel(CHANNEL_ID)
+    if channel:
+        system_info = get_system_info()
+        await channel.send(system_info)
 
 bot.run(os.getenv('DISCORD'))
 #lol
