@@ -90,20 +90,23 @@ async def send_daily_message():
         print("Erreur : Impossible de trouver le salon.")
 
 def get_system_info():
-    temp = psutil.sensors_temperatures()
-    temp = temp.replace("shwtemp", "")
+    # Récupération de la température CPU
+    temp_data = psutil.sensors_temperatures()
     try:
-        data = ast.literal_eval(temp)
-        valeur_current = data['cpu_thermal'][0]['current']
+        valeur_current = temp_data.get("cpu_thermal", [{}])[0].get("current", "N/A")
     except Exception as e:
-        print(f"Erreur : {e}")
-    
+        print(f"Erreur lors de la récupération de la température : {e}")
+        valeur_current = "N/A"
+
+    # Récupération de l'utilisation de la RAM
     ram = psutil.virtual_memory()
     ram_usage = f"{ram.used / (1024 ** 2):.2f} MB / {ram.total / (1024 ** 2):.2f} MB ({ram.percent}%)"
     
+    # Récupération de l'utilisation du stockage
     disk = psutil.disk_usage('/')
     storage_usage = f"{disk.used / (1024 ** 3):.2f} GB / {disk.total / (1024 ** 3):.2f} GB ({disk.percent}%)"
     
+    # Récupération du temps de fonctionnement (uptime)
     uptime = os.popen("uptime -p").read().strip()
     
     return f"""📊 **Statistiques du Smart Pi One**
