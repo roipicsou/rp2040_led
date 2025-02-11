@@ -6,14 +6,12 @@ import datetime
 import psutil
 from dotenv import load_dotenv
 import os
-import ast
 
 # Remplacez par le port série de votre carte (ex: "COM3" sous Windows, "/dev/ttyUSB0" sous Linux/macOS)
 PORT = "COM5" # "/dev/ttyACM0"
 BAUDRATE = 9600
 CHANNEL_ID = 1338257927047217202
 load_dotenv()
-nc = 0
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 try:
@@ -27,7 +25,6 @@ except KeyboardInterrupt:
     ser.close()
 
 def send_command(command):
-    nc += 1
     ser.write((command + "\n").encode())
     time.sleep(0.1)
     response = ser.readlines()
@@ -122,7 +119,6 @@ def get_system_info():
 - 💾 RAM utilisée : {ram_usage}
 - 🗄 Stockage utilisé : {storage_usage}
 - ⏳ Uptime : {uptime}
-- 🗄 nombre de comande passer {nc}
 """
 
 bot.run(os.getenv('DISCORD'))
