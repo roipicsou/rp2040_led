@@ -13,6 +13,7 @@ PORT = "COM5" # "/dev/ttyACM0"
 BAUDRATE = 9600
 CHANNEL_ID = 1338257927047217202
 load_dotenv()
+nc = 0
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
 try:
@@ -26,6 +27,7 @@ except KeyboardInterrupt:
     ser.close()
 
 def send_command(command):
+    nc += 1
     ser.write((command + "\n").encode())
     time.sleep(0.1)
     response = ser.readlines()
@@ -86,6 +88,7 @@ async def send_daily_message():
     if channel:
         system_info = get_system_info()
         await channel.send(system_info)
+        nc = 0
     else:
         print("Erreur : Impossible de trouver le salon.")
 
@@ -119,6 +122,7 @@ def get_system_info():
 - 💾 RAM utilisée : {ram_usage}
 - 🗄 Stockage utilisé : {storage_usage}
 - ⏳ Uptime : {uptime}
+- 🗄 nombre de comande passer {nc}
 """
 
 bot.run(os.getenv('DISCORD'))
